@@ -4,17 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BotRequest {
+public class ChatGPTRequest {
 
     private String model;
     private List<Message> messages;
-    private int n;
-    private double temperature;
-    private int max_tokens;
+
+    public ChatGPTRequest(String model, String prompt) {
+        this.model = model;
+        this.messages = new ArrayList<>();
+        this.messages.add(new Message("user",prompt));
+    }
 
 }

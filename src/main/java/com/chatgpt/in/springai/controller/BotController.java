@@ -1,48 +1,30 @@
 package com.chatgpt.in.springai.controller;
 
-import com.chatgpt.in.springai.request.BotRequest;
-import com.chatgpt.in.springai.request.Message;
-import com.chatgpt.in.springai.response.BotResponse;
+import com.chatgpt.in.springai.request.ChatGPTRequest;
+
+import com.chatgpt.in.springai.response.ChatGptResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @RestController
 public class BotController {
-
-    @Autowired
-    private RestTemplate restTemplate;
-
     @Value("${openai.model}")
     private String model;
 
-    @Value("${openai.max-completions}")
-    private int maxCompletions;
+    @Value(("${openai.api.url}"))
+    private String apiURL;
 
-    @Value("${openai.temperature}")
-    private double temperature;
+    @Autowired
+    private RestTemplate template;
 
-    @Value("${openai.max_tokens}")
-    private int maxTokens;
-
-    @Value("${openai.api.url}")
-    private String apiUrl;
-
-    @PostMapping("/chat")
-    public BotResponse chat(@RequestParam("prompt") String prompt) {
-
-        BotRequest request = new BotRequest(model,
-                List.of(new Message("user", prompt)),
-                maxCompletions,
-                temperature,
-                maxTokens);
-
-        BotResponse response = restTemplate.postForObject(apiUrl, request, BotResponse.class);
-        return response;
+    @GetMapping("/chat")
+    public String chat(@RequestParam("prompt") String prompt){
+        ChatGPTRequest request=new ChatGPTRequest(model, prompt);
+        ChatGptResponse chatGptResponse = template.postForObject(apiURL, request, ChatGptResponse.class);
+        return chatGptResponse.getChoices().get(0).getMessage().getContent();
     }
 }
